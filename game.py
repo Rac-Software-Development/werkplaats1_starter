@@ -1,16 +1,87 @@
 import pygame
 
 pygame.init()
-SCREEN_WIDTH = 640
-SCREEN_HEIGHT = 480
+GAME_SPEED = 60
+LOGO_SPEED = 3
+SCREEN_WIDTH = 1024
+SCREEN_HEIGHT = 768
+# Kleuren worden aangeven met een tuple van 3 getallen - rood, groen, blauw - tussen 0 en 255.
+# 0, 0, 0 betekend geen kleurm, dus zwart.
+BACKGROUND_COLOR = (0, 0, 0)
 pygame.display.set_caption("Werkplaats 1: PyGame")
 clock = pygame.time.Clock()
 
 canvas = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-halt_game = False
-while not halt_game:
+
+# Met deze functie kijken we moeten stoppen. In dit geval controleren we of
+# de gebruiker op het sluit kruis heeft geklikt.
+def check_for_halt():
+    halting = False
+
+    # De lijst met "events" is een lijst met alle gebeurtenissen die
+    # plaatsvonden sinds de vorige loop.
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            halt_game = True
+            halting = True
+            break
+    return halting
+
+
+def bounce_if_required(speed_tuple, position_rect):
+    # Dit testen tegen de randen kan sneller, maar
+    # deze aanpak is de meest duidelijke.
+
+    # Linkerkant van het scherm geraakt?
+    if position_rect.left <= 0:
+        speed_tuple[0] = LOGO_SPEED
+    # Rechterkant van het scherm geraakt?
+    elif position_rect.right >= SCREEN_WIDTH:
+        speed_tuple[0] = -LOGO_SPEED
+
+    # Bovenkant van het scherm geraakt?
+    if position_rect.top <= 0:
+        speed_tuple[1] = LOGO_SPEED
+    # Onderkant van het scherm geraakt?
+    elif position_rect.bottom >= SCREEN_HEIGHT:
+        speed_tuple[1] = -LOGO_SPEED
+
+
+# Hier wordt het logo ingeladen. In principe gebeurt er nu nog niets mee en
+# staat het logo niet op het scherm
+logo = pygame.image.load("images/ra_logo.png")
+
+# De standaard locatie van het logo is (0, 0). Dit is de linkerbovenhoek van
+# het scherm. We houden deze bij zodat we het logo kunnen verplaatsen.
+logo_rect = logo.get_rect()
+
+
+# De "snelheid" is het aantal pixels dat het logo per frame verplaatst,
+# per loop. De eerste waarde geeft de horizontale snelheid aan, de
+# tweede de verticale.
+# Dus:
+# [1, 1] betekend 1 pixel naar rechts en 1 pixel naar beneden.
+# [-1, 1] betekend 1 pixel naar links en 1 pixel naar beneden.
+# [-1, -1] betekend 1 pixel naar links en 1 pixel naar boven.
+# [1, -1] betekend 1 pixel naar rechts en 1 pixel naar boven.
+logo_speed = [1, 1]
+
+# Dit is de "game loop"
+while not check_for_halt():
+    # Eerst wissen we alles
+    canvas.fill(BACKGROUND_COLOR)
+
+    # We passen de snelheid van het logo aan zodat die niet buiten het scherm gaat.
+    # Let op! We passen hier de inhoud van de logo_speed lijst aan!
+    bounce_if_required(logo_speed, logo_rect)
+
+    # Met de nieuwe snelheid verplaatsen we de locatie van het logo
+    logo_rect = logo_rect.move(logo_speed)
+
+    # Nu alles verplaatst is blitten we het logo op de achtergrond met de nieuwe locatie
+    canvas.blit(logo, logo_rect)
+
+    # ...en tonen we het scherm
     pygame.display.flip()
-    clock.tick(60)
+
+    # Daarna wachten we tot de volgende "tick" van de klok
+    clock.tick(GAME_SPEED)
