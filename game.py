@@ -13,11 +13,9 @@ clock = pygame.time.Clock()
 
 canvas = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-# Met deze functie kijken we moeten stoppen. In dit geval controleren we of
-# de gebruiker op het sluit kruis heeft geklikt.
-def check_for_halt():
-    halting = False
 
+def quit_game_requested():
+    halting = False
     # De lijst met "events" is een lijst met alle gebeurtenissen die
     # plaatsvonden sinds de vorige loop.
     for event in pygame.event.get():
@@ -28,9 +26,6 @@ def check_for_halt():
 
 
 def bounce_if_required(speed_tuple, position_rect):
-    # Dit testen tegen de randen kan sneller, maar
-    # deze aanpak is de meest duidelijke.
-
     # Linkerkant van het scherm geraakt?
     if position_rect.left <= 0:
         speed_tuple[0] = LOGO_SPEED
@@ -48,10 +43,7 @@ def bounce_if_required(speed_tuple, position_rect):
 
 # Hier wordt het logo ingeladen. In principe gebeurt er nu nog niets mee en
 # staat het logo niet op het scherm
-logo = pygame.image.load("images/ra_logo.png")
-
-# De standaard locatie van het logo is (0, 0). Dit is de linkerbovenhoek van
-# het scherm. We houden deze bij zodat we het logo kunnen verplaatsen.
+logo = pygame.image.load("images/ra_logo.png").convert_alpha()
 logo_rect = logo.get_rect()
 
 
@@ -63,11 +55,11 @@ logo_rect = logo.get_rect()
 # [-1, 1] betekend 1 pixel naar links en 1 pixel naar beneden.
 # [-1, -1] betekend 1 pixel naar links en 1 pixel naar boven.
 # [1, -1] betekend 1 pixel naar rechts en 1 pixel naar boven.
-logo_speed = [1, 1]
+logo_speed = [LOGO_SPEED, LOGO_SPEED]
 
 # Dit is de "game loop"
-while not check_for_halt():
-    # Eerst wissen we alles
+while not quit_game_requested():
+    # Eerst wissen we alles als voorbereiding van deze "tick"
     canvas.fill(BACKGROUND_COLOR)
 
     # We passen de snelheid van het logo aan zodat die niet buiten het scherm gaat.
@@ -75,6 +67,7 @@ while not check_for_halt():
     bounce_if_required(logo_speed, logo_rect)
 
     # Met de nieuwe snelheid verplaatsen we de locatie van het logo
+    # https://www.pygame.org/docs/ref/rect.html
     logo_rect = logo_rect.move(logo_speed)
 
     # Nu alles verplaatst is blitten we het logo op de achtergrond met de nieuwe locatie
@@ -85,3 +78,5 @@ while not check_for_halt():
 
     # Daarna wachten we tot de volgende "tick" van de klok
     clock.tick(GAME_SPEED)
+
+print("Game over!")
