@@ -25,19 +25,21 @@ def quit_game_requested():
     return halting
 
 
-def bounce_if_required(speed_tuple, position_rect):
+def bounce_if_required(
+    speed_tuple, position_rect, screen_boundary_x, screen_boundary_y
+):
     # Linkerkant van het scherm geraakt?
     if position_rect.left <= 0:
         speed_tuple[0] = LOGO_SPEED
     # Rechterkant van het scherm geraakt?
-    elif position_rect.right >= SCREEN_WIDTH:
+    elif position_rect.right >= screen_boundary_x:
         speed_tuple[0] = -LOGO_SPEED
 
     # Bovenkant van het scherm geraakt?
     if position_rect.top <= 0:
         speed_tuple[1] = LOGO_SPEED
     # Onderkant van het scherm geraakt?
-    elif position_rect.bottom >= SCREEN_HEIGHT:
+    elif position_rect.bottom >= screen_boundary_y:
         speed_tuple[1] = -LOGO_SPEED
 
 
@@ -64,7 +66,7 @@ while not quit_game_requested():
 
     # We passen de snelheid van het logo aan zodat die niet buiten het scherm gaat.
     # Let op! We passen hier de inhoud van de logo_speed lijst aan!
-    bounce_if_required(logo_speed, logo_rect)
+    bounce_if_required(logo_speed, logo_rect, SCREEN_WIDTH, SCREEN_HEIGHT)
 
     # Met de nieuwe snelheid verplaatsen we de locatie van het logo
     # https://www.pygame.org/docs/ref/rect.html
