@@ -15,14 +15,19 @@ clock = pygame.time.Clock()
 canvas = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
-def quit_game_requested():
+def handle_events():
     halting = False
     # De lijst met "events" is een lijst met alle gebeurtenissen die
-    # plaatsvonden sinds de vorige loop.
+    # plaatsvonden sinds de vorige loop. Hier komen ook de toetsaanslagen
+    # in te staan. Let op! De .get() methode haalt de lijst leeg.
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             halting = True
             break
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE or event.key == pygame.K_SPACE:
+                halting = True
+                break
     return halting
 
 
@@ -51,9 +56,10 @@ logo_rect = logo.get_rect()
 logo_speed = [LOGO_SPEED, LOGO_SPEED]
 
 # Dit is de "game loop"
-while not quit_game_requested():
+quit_program = False
+while not quit_program:
+    quit_program = handle_events()
     canvas.fill(BACKGROUND_COLOR)
-
     logo_speed = get_new_speed_directions(
         current_speed=logo_speed,
         position_rect=logo_rect,
